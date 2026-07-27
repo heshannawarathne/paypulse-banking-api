@@ -21,6 +21,7 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserMapper userMapper;
 
+    //I will have to password encode
     //save user
     @Override
     public String saveUser(UsersDto usersDto) {
@@ -36,7 +37,7 @@ public class UserServiceImpl implements UserService {
         }
 
     }
-
+//I will have to password encode
     //update user by Nic
     @Override
     public String UpdateUserByNic(UsersUpdateDto usersUpdateDto) {
