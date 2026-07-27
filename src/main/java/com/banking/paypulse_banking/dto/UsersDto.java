@@ -23,8 +23,7 @@ public class UsersDto {
 
     private String nic;
 
-    private UserType role;
+//    private UserType role;
 
-    private LocalDateTime createdAt;
 
 }

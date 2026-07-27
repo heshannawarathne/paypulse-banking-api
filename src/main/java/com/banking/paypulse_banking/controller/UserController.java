@@ -2,6 +2,7 @@ package com.banking.paypulse_banking.controller;
 
 
 import com.banking.paypulse_banking.dto.UsersDto;
+import com.banking.paypulse_banking.dto.request.UsersUpdateDto;
 import com.banking.paypulse_banking.service.UserService;
 import com.banking.paypulse_banking.util.StandardResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,8 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+
+    //user side
     @PostMapping(path = "/saveUser")
     public ResponseEntity<StandardResponse> saveUser(@RequestBody UsersDto usersDto) {
 
@@ -27,4 +30,16 @@ public class UserController {
         );
 
     }
+
+
+    //user side -update account
+    @PutMapping
+    public ResponseEntity<StandardResponse> updateUser(@RequestBody UsersUpdateDto usersUpdateDto) {
+
+        String message=userService.UpdateUserByNic(usersUpdateDto);
+        return new ResponseEntity<StandardResponse>(
+                new StandardResponse(200, "Update successful", message), HttpStatus.OK
+        );
+    }
+
 }
