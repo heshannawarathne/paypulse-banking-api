@@ -15,8 +15,8 @@ import java.time.LocalDateTime;
 @Data
 public class TransferResponseDto {
     private String transactionReference;
-    private Account sourceAccount;
-    private Account destinationAccount;
+    private String sourceAccountNumber;
+    private String destinationAccountNumber;
     private BigDecimal amount;
     private TransactionStatus status;
     private String description;
