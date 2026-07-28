@@ -14,11 +14,13 @@ import com.banking.paypulse_banking.repo.AccountRepo;
 import com.banking.paypulse_banking.repo.UserRepo;
 import com.banking.paypulse_banking.service.UserService;
 import jakarta.transaction.Transactional;
+import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.security.SecureRandom;
+import java.util.List;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -98,5 +100,30 @@ public class UserServiceImpl implements UserService {
         } else {
             throw new NotFoundException("User not found");
         }
+    }
+
+
+    //update-account-state
+    @Override
+    public String UpdateUserState(String nic, String state) {
+        Users existUser = userRepo.findByNic(nic);
+
+        if (existUser != null) {
+            Account account = accountRepo.findByUserId(existUser.getId())
+                    .orElseThrow(() -> new NotFoundException("Account not found for this user"));
+
+            try {
+                account.setAccountStatus(AccountStatus.valueOf(state.toUpperCase()));
+            } catch (Exception e) {
+                throw new RuntimeException("Invalid Account Status: " + state);
+            }
+            accountRepo.save(account);
+            return "Account State successfully updated";
+
+        } else {
+            throw new NotFoundException("User not found");
+        }
+
+
     }
 }

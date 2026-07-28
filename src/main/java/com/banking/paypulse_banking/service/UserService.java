@@ -8,4 +8,6 @@ public interface UserService {
     UserAccountDitailsResponse saveUser(UsersDto userDto);
 
     String UpdateUserByNic(UsersUpdateDto userUpdateDto);
+
+    String UpdateUserState(String nic, String state);
 }

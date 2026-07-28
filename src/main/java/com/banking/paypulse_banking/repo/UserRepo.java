@@ -13,4 +13,6 @@ public interface UserRepo extends JpaRepository<Users, Long> {
     boolean existsByNicEquals(String nic);
 
     Users findAllByNicEquals(String nic);
+
+    Users findByNic(String nic);
 }

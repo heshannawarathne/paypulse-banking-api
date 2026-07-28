@@ -37,10 +37,26 @@ public class UserController {
     @PutMapping
     public ResponseEntity<StandardResponse> updateUser(@RequestBody UsersUpdateDto usersUpdateDto) {
 
-        String message=userService.UpdateUserByNic(usersUpdateDto);
+        String message = userService.UpdateUserByNic(usersUpdateDto);
         return new ResponseEntity<StandardResponse>(
                 new StandardResponse(200, "Update successful", message), HttpStatus.OK
         );
+    }
+
+
+    //admin-side
+    @GetMapping(path = "update-user-ccount-state-by-nic"
+            , params = {"nic", "state"})
+    public ResponseEntity<StandardResponse> updateUserStateByNic(
+            @RequestParam(value = "nic") String nic,
+            @RequestParam(value = "state") String state) {
+
+        String message = userService.UpdateUserState(nic, state);
+
+        return new ResponseEntity<StandardResponse>(
+                new StandardResponse(200, "State Update successful", message), HttpStatus.OK
+        );
+
     }
 
 }
