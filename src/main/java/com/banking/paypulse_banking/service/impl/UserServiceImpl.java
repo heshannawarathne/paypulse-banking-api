@@ -4,6 +4,7 @@ import com.banking.paypulse_banking.Exception.DataIntegrityViolationException;
 import com.banking.paypulse_banking.Exception.NotFoundException;
 import com.banking.paypulse_banking.dto.UsersDto;
 import com.banking.paypulse_banking.dto.request.UsersUpdateDto;
+import com.banking.paypulse_banking.dto.response.UserAccountDitailsResponse;
 import com.banking.paypulse_banking.entity.Account;
 import com.banking.paypulse_banking.entity.Users;
 import com.banking.paypulse_banking.entity.enums.AccountStatus;
@@ -51,7 +52,7 @@ public class UserServiceImpl implements UserService {
     //save user
     @Transactional
     @Override
-    public String saveUser(UsersDto usersDto) {
+    public UserAccountDitailsResponse saveUser(UsersDto usersDto) {
 
         Users user = userMapper.dtoToUser(usersDto);
         user.setRole(UserType.USER);
@@ -69,8 +70,10 @@ public class UserServiceImpl implements UserService {
             account.setUser(user);
 
             accountRepo.save(account);
+            UsersDto usersDto1 = userMapper.dtoToUserDto(user);
 
-            return usersDto.getNic() + " successfully saved";
+            UserAccountDitailsResponse userAccountDitailsResponse = userMapper.responseAccountDetails(account);
+            return userAccountDitailsResponse;
 
         } else {
             throw new DataIntegrityViolationException(user.getNic() + " User already exists");

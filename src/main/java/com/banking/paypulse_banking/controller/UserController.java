@@ -3,6 +3,7 @@ package com.banking.paypulse_banking.controller;
 
 import com.banking.paypulse_banking.dto.UsersDto;
 import com.banking.paypulse_banking.dto.request.UsersUpdateDto;
+import com.banking.paypulse_banking.dto.response.UserAccountDitailsResponse;
 import com.banking.paypulse_banking.service.UserService;
 import com.banking.paypulse_banking.util.StandardResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,7 @@ public class UserController {
     @PostMapping(path = "/saveUser")
     public ResponseEntity<StandardResponse> saveUser(@RequestBody UsersDto usersDto) {
 
-        String message = userService.saveUser(usersDto);
+        UserAccountDitailsResponse message = userService.saveUser(usersDto);
 
         return new ResponseEntity<StandardResponse>(
                 new StandardResponse(201, "successful", message), HttpStatus.CREATED
