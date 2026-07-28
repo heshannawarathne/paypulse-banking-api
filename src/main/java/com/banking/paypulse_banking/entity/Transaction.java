@@ -35,11 +35,11 @@ public class Transaction {
     private BigDecimal amount;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "Transaction_type", nullable = false)
+    @Column(name = "transaction_type", nullable = false)
     private TransactionType type;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "TransactionStatus", nullable = false)
+    @Column(name = "transaction_status", nullable = false)
     private TransactionStatus status;
 
     @Column(name = "description")

@@ -14,14 +14,11 @@ import com.banking.paypulse_banking.repo.AccountRepo;
 import com.banking.paypulse_banking.repo.UserRepo;
 import com.banking.paypulse_banking.service.UserService;
 import jakarta.transaction.Transactional;
-import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.security.SecureRandom;
-import java.util.List;
-
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -34,8 +31,7 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private AccountRepo accountRepo;
 
-
-    //account number ganarate
+    //account number create
     private static final SecureRandom random = new SecureRandom();
 
     private String generateUniqueAccountNumber() {

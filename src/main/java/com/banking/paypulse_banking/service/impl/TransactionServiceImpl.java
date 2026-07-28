@@ -1,0 +1,116 @@
+package com.banking.paypulse_banking.service.impl;
+
+import com.banking.paypulse_banking.Exception.InsufficientBalanceException;
+import com.banking.paypulse_banking.Exception.NotFoundException;
+import com.banking.paypulse_banking.dto.request.TransferRequestDto;
+import com.banking.paypulse_banking.dto.response.TransferResponseDto;
+import com.banking.paypulse_banking.entity.Account;
+import com.banking.paypulse_banking.entity.Transaction;
+import com.banking.paypulse_banking.entity.enums.AccountStatus;
+import com.banking.paypulse_banking.entity.enums.TransactionStatus;
+import com.banking.paypulse_banking.entity.enums.TransactionType;
+import com.banking.paypulse_banking.mapper.TransactionMapper;
+import com.banking.paypulse_banking.repo.AccountRepo;
+import com.banking.paypulse_banking.repo.TransactionRep;
+import com.banking.paypulse_banking.service.TransactionService;
+import com.banking.paypulse_banking.util.TransactionReferenceGenerator;
+import jakarta.transaction.Transactional;
+import org.apache.coyote.BadRequestException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+
+@Service
+public class TransactionServiceImpl implements TransactionService {
+
+    @Autowired
+    private AccountRepo accountRepo;
+
+    @Autowired
+    private TransactionRep transactionRepo;
+
+    @Autowired
+    private TransactionMapper transactionMapper;
+
+@Transactional
+    @Override
+    public TransferResponseDto transferMony(TransferRequestDto transferRequestDto) {
+
+
+        if (transferRequestDto.getSourceAccount().equals(transferRequestDto.getDestinationAccount())) {
+            throw new IllegalArgumentException("Source account and Destination account are the same");
+        } else if (transferRequestDto.getAmount() == null || transferRequestDto.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Amount must be greater than zero");
+
+        } else {
+
+            Account findSourceAccount = accountRepo.findByAccountNumber(transferRequestDto.getSourceAccount());
+            Account findDestinationAccount = accountRepo.findByAccountNumber(transferRequestDto.getDestinationAccount());
+
+            if (findSourceAccount == null) {
+                throw new NotFoundException("Source Account not found");
+
+            } else if (findDestinationAccount == null) {
+                throw new NotFoundException("Destination Account not found");
+
+            } else {
+
+                if (findSourceAccount.getAccountStatus() != AccountStatus.ACTIVE) {
+                    throw new NotFoundException("Source Account is not ACTIVE");
+
+                } else if (findDestinationAccount.getAccountStatus() != AccountStatus.ACTIVE) {
+                    throw new NotFoundException("Destination is not ACTIVE");
+
+                } else {
+
+                    if (findSourceAccount.getBalance().compareTo(transferRequestDto.getAmount()) < 0) {
+                        throw new InsufficientBalanceException("Insufficient balance in account: " + findSourceAccount.getAccountNumber());
+
+                    } else {
+
+                        //calculations
+
+                        findSourceAccount.setBalance(findSourceAccount.getBalance().subtract(transferRequestDto.getAmount()));
+                        findDestinationAccount.setBalance(findDestinationAccount.getBalance().add(transferRequestDto.getAmount()));
+
+                        accountRepo.save(findSourceAccount);
+                        accountRepo.save(findDestinationAccount);
+
+                        String reference = generateUniqueTransactionReference();
+
+                        Transaction tr = new Transaction();
+                        tr.setTransactionReference(reference);
+                        tr.setSourceAccount(findSourceAccount);
+                        tr.setDestinationAccount(findDestinationAccount);
+                        tr.setAmount(transferRequestDto.getAmount());
+                        tr.setType(TransactionType.TRANSFER);
+                        tr.setStatus(TransactionStatus.SUCCESS);
+                        tr.setDescription(transferRequestDto.getDescription());
+
+                        Transaction transaction = transactionRepo.save(tr);
+
+                        TransferResponseDto transferResponseDto = transactionMapper.transactionToTransactionDto(transaction);
+                        return transferResponseDto;
+
+                    }
+
+
+                }
+
+            }
+
+
+        }
+
+
+    }
+
+    private String generateUniqueTransactionReference() {
+        String reference;
+        do {
+            reference = TransactionReferenceGenerator.generateReference();
+        } while (transactionRepo.existsByTransactionReference(reference));
+        return reference;
+    }
+}

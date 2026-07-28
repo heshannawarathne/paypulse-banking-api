@@ -2,6 +2,7 @@ package com.banking.paypulse_banking.advisor;
 
 
 import com.banking.paypulse_banking.Exception.DataIntegrityViolationException;
+import com.banking.paypulse_banking.Exception.InsufficientBalanceException;
 import com.banking.paypulse_banking.Exception.NotFoundException;
 import com.banking.paypulse_banking.util.StandardResponse;
 import org.springframework.http.HttpStatus;
@@ -23,6 +24,13 @@ public class AppWideExceptionHandler {
     public ResponseEntity<StandardResponse> handleDataIntegrityViolationException(DataIntegrityViolationException e) {
         return new ResponseEntity<StandardResponse>(
                 new StandardResponse(409, " Data duplicate ", e.getMessage()), HttpStatus.BAD_REQUEST
+        );
+    }
+
+    @ExceptionHandler(InsufficientBalanceException.class)
+    public ResponseEntity<StandardResponse> handleInsufficientBalanceException(InsufficientBalanceException e) {
+        return new ResponseEntity<StandardResponse>(
+                new StandardResponse(409, " Insufficient Balance ", e.getMessage()), HttpStatus.INSUFFICIENT_STORAGE
         );
     }
 }
