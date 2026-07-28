@@ -4,8 +4,12 @@ import com.banking.paypulse_banking.dto.paginated.PaginatedResponseTransaction;
 import com.banking.paypulse_banking.dto.request.TransferRequestDto;
 import com.banking.paypulse_banking.dto.response.TransferResponseDto;
 
+import java.time.LocalDateTime;
+
 public interface TransactionService {
     TransferResponseDto transferMony(TransferRequestDto transferRequestDto);
 
-    PaginatedResponseTransaction GetAllTransaction(String accNo, int page, int size);
+    PaginatedResponseTransaction getAllTransaction(String accNo, int page, int size);
+
+    PaginatedResponseTransaction getTransactionsByDateRange(String accountNumber, LocalDateTime fromDate, LocalDateTime toDate, int page, int size);
 }

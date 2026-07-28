@@ -21,9 +21,12 @@ import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -112,7 +115,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public PaginatedResponseTransaction GetAllTransaction(String accNo, int page, int size) {
+    public PaginatedResponseTransaction getAllTransaction(String accNo, int page, int size) {
 
         Page<Transaction> transactionPage = transactionRepo.findBySourceAccount_AccountNumber(accNo, PageRequest.of(page, size));
 
@@ -130,6 +133,30 @@ public class TransactionServiceImpl implements TransactionService {
             throw new NotFoundException("user not found");
         }
 
+    }
+
+    @Override
+    public PaginatedResponseTransaction getTransactionsByDateRange(String accNo, LocalDateTime fromDate, LocalDateTime toDate, int page, int size) {
+        Page<Transaction> transactionPage = transactionRepo.findBySourceAccount_AccountNumberAndTimestampBetween(
+                accNo,
+                fromDate,
+                toDate,
+                PageRequest.of(page, size)
+        );
+
+        if (transactionPage.hasContent()) {
+
+            List<GetAllTransactionByUserResponseDto> dtoList =
+                    transactionMapper.pageToGetAllTransactionByUserDtoList(transactionPage.getContent());
+
+            return new PaginatedResponseTransaction(
+                    dtoList,
+                    transactionPage.getTotalElements()
+            );
+
+        } else {
+            throw new NotFoundException("No transactions found for the given date range");
+        }
     }
 
     //save-transaction-genarate-reference

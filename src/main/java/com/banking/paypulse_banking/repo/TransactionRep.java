@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
+
 @Repository
 @EnableJpaRepositories
 public interface TransactionRep extends JpaRepository<Transaction, Long> {
@@ -15,4 +17,6 @@ public interface TransactionRep extends JpaRepository<Transaction, Long> {
 
 
     Page<Transaction> findBySourceAccount_AccountNumber(String accNo, Pageable pageable);
+
+    Page<Transaction> findBySourceAccount_AccountNumberAndTimestampBetween(String accNo, LocalDateTime fromDate, LocalDateTime toDate, PageRequest of);
 }
