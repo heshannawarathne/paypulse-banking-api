@@ -2,7 +2,9 @@ package com.banking.paypulse_banking.service.impl;
 
 import com.banking.paypulse_banking.Exception.InsufficientBalanceException;
 import com.banking.paypulse_banking.Exception.NotFoundException;
+import com.banking.paypulse_banking.dto.paginated.PaginatedResponseTransaction;
 import com.banking.paypulse_banking.dto.request.TransferRequestDto;
+import com.banking.paypulse_banking.dto.response.GetAllTransactionByUserResponseDto;
 import com.banking.paypulse_banking.dto.response.TransferResponseDto;
 import com.banking.paypulse_banking.entity.Account;
 import com.banking.paypulse_banking.entity.Transaction;
@@ -17,9 +19,12 @@ import com.banking.paypulse_banking.util.TransactionReferenceGenerator;
 import jakarta.transaction.Transactional;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 public class TransactionServiceImpl implements TransactionService {
@@ -33,7 +38,7 @@ public class TransactionServiceImpl implements TransactionService {
     @Autowired
     private TransactionMapper transactionMapper;
 
-@Transactional
+    @Transactional
     @Override
     public TransferResponseDto transferMony(TransferRequestDto transferRequestDto) {
 
@@ -106,6 +111,28 @@ public class TransactionServiceImpl implements TransactionService {
 
     }
 
+    @Override
+    public PaginatedResponseTransaction GetAllTransaction(String accNo, int page, int size) {
+
+        Page<Transaction> transactionPage = transactionRepo.findBySourceAccount_AccountNumber(accNo, PageRequest.of(page, size));
+
+        if (transactionPage.hasContent()) {
+
+            List<GetAllTransactionByUserResponseDto> dtoList =
+                    transactionMapper.pageToGetAllTransactionByUserDtoList(transactionPage.getContent());
+
+            return new PaginatedResponseTransaction(
+                    dtoList,
+                    transactionPage.getTotalElements()
+            );
+
+        } else {
+            throw new NotFoundException("user not found");
+        }
+
+    }
+
+    //save-transaction-genarate-reference
     private String generateUniqueTransactionReference() {
         String reference;
         do {

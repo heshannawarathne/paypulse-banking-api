@@ -1,5 +1,6 @@
 package com.banking.paypulse_banking.controller;
 
+import com.banking.paypulse_banking.dto.paginated.PaginatedResponseTransaction;
 import com.banking.paypulse_banking.dto.request.TransferRequestDto;
 import com.banking.paypulse_banking.dto.response.TransferResponseDto;
 import com.banking.paypulse_banking.service.TransactionService;
@@ -25,5 +26,22 @@ public class TransactionController {
         return new ResponseEntity<StandardResponse>(
                 new StandardResponse(200, "transfer Successfull", transferResponseDto), HttpStatus.CREATED
         );
+    }
+
+    @GetMapping(path = "get-all-transaction-by-user"
+            , params = {"accountNumber", "page", "size"})
+    public ResponseEntity<StandardResponse> getAllTransactionByUser(
+            @RequestParam("accountNumber") String accNo,
+            @RequestParam("page") int page,
+            @RequestParam("size") int size
+    ) {
+
+        PaginatedResponseTransaction prt = transactionService.GetAllTransaction(accNo, page, size);
+
+        return new ResponseEntity<StandardResponse>(
+                new StandardResponse(200, "All transaction", prt), HttpStatus.OK
+        );
+
+
     }
 }
