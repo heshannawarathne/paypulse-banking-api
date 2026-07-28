@@ -4,13 +4,20 @@ import com.banking.paypulse_banking.Exception.DataIntegrityViolationException;
 import com.banking.paypulse_banking.Exception.NotFoundException;
 import com.banking.paypulse_banking.dto.UsersDto;
 import com.banking.paypulse_banking.dto.request.UsersUpdateDto;
+import com.banking.paypulse_banking.entity.Account;
 import com.banking.paypulse_banking.entity.Users;
+import com.banking.paypulse_banking.entity.enums.AccountStatus;
 import com.banking.paypulse_banking.entity.enums.UserType;
 import com.banking.paypulse_banking.mapper.UserMapper;
+import com.banking.paypulse_banking.repo.AccountRepo;
 import com.banking.paypulse_banking.repo.UserRepo;
 import com.banking.paypulse_banking.service.UserService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.security.SecureRandom;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -21,15 +28,48 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserMapper userMapper;
 
+    @Autowired
+    private AccountRepo accountRepo;
+
+
+    //account number ganarate
+    private static final SecureRandom random = new SecureRandom();
+
+    private String generateUniqueAccountNumber() {
+        String accountNumber;
+        do {
+            // Prefix (1010) + Random 10 digits
+            long randomNum = 1000000000L + (long) (random.nextDouble() * 9000000000L);
+            accountNumber = "1010" + randomNum;
+        } while (accountRepo.existsByAccountNumber(accountNumber)); // DB එකේ නැති එකක් එනකම් Loop වෙනවා
+
+        return accountNumber;
+    }
+
+
     //I will have to password encode
     //save user
+    @Transactional
     @Override
     public String saveUser(UsersDto usersDto) {
 
         Users user = userMapper.dtoToUser(usersDto);
         user.setRole(UserType.USER);
+
+        String newAccountNumber = generateUniqueAccountNumber();
+
+
         if (!userRepo.existsByNicEquals(user.getNic())) {
             userRepo.save(user);
+
+            Account account = new Account();
+            account.setAccountNumber(newAccountNumber);
+            account.setBalance(BigDecimal.ZERO);
+            account.setAccountStatus(AccountStatus.ACTIVE);
+            account.setUser(user);
+
+            accountRepo.save(account);
+
             return usersDto.getNic() + " successfully saved";
 
         } else {
@@ -37,7 +77,8 @@ public class UserServiceImpl implements UserService {
         }
 
     }
-//I will have to password encode
+
+    //I will have to password encode
     //update user by Nic
     @Override
     public String UpdateUserByNic(UsersUpdateDto usersUpdateDto) {
