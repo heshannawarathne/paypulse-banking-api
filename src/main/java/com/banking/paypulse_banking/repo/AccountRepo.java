@@ -16,5 +16,7 @@ public interface AccountRepo extends JpaRepository<Account, Long> {
 
     Account findByAccountNumber(String accountNumber);
 
-
+    Account findByQrCodePayload(String qrCodePayload);
 }
+
+

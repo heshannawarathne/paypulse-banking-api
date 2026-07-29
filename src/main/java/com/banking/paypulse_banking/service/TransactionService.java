@@ -1,7 +1,9 @@
 package com.banking.paypulse_banking.service;
 
 import com.banking.paypulse_banking.dto.paginated.PaginatedResponseTransaction;
+import com.banking.paypulse_banking.dto.request.QrRequestDto;
 import com.banking.paypulse_banking.dto.request.TransferRequestDto;
+import com.banking.paypulse_banking.dto.response.AccountLookupResponseDto;
 import com.banking.paypulse_banking.dto.response.DashboardSummaryResponseDto;
 import com.banking.paypulse_banking.dto.response.TransferResponseDto;
 
@@ -15,4 +17,6 @@ public interface TransactionService {
     PaginatedResponseTransaction getTransactionsByDateRange(String accountNumber, LocalDateTime fromDate, LocalDateTime toDate, int page, int size);
 
     DashboardSummaryResponseDto getDashboardSummary(String accountNumber);
+
+
 }

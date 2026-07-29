@@ -36,6 +36,9 @@ public class Account {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "qr_code_payload", unique = true)
+    private String qrCodePayload;
+
     @PrePersist
     protected void onCreate() {
 

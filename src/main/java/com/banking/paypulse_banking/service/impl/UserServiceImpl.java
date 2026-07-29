@@ -31,21 +31,6 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private AccountRepo accountRepo;
 
-    //account number create
-    private static final SecureRandom random = new SecureRandom();
-
-    private String generateUniqueAccountNumber() {
-        String accountNumber;
-        do {
-            // Prefix (1010) + Random 10 digits
-            long randomNum = 1000000000L + (long) (random.nextDouble() * 9000000000L);
-            accountNumber = "1010" + randomNum;
-        } while (accountRepo.existsByAccountNumber(accountNumber)); // DB එකේ නැති එකක් එනකම් Loop වෙනවා
-
-        return accountNumber;
-    }
-
-
     //I will have to password encode
     //save user
     @Transactional
@@ -63,6 +48,7 @@ public class UserServiceImpl implements UserService {
 
             Account account = new Account();
             account.setAccountNumber(newAccountNumber);
+            account.setQrCodePayload("PAYPULSE:" + newAccountNumber);
             account.setBalance(BigDecimal.ZERO);
             account.setAccountStatus(AccountStatus.ACTIVE);
             account.setUser(user);
@@ -121,5 +107,20 @@ public class UserServiceImpl implements UserService {
         }
 
 
+    }
+
+
+    //account number create
+    private static final SecureRandom random = new SecureRandom();
+
+    private String generateUniqueAccountNumber() {
+        String accountNumber;
+        do {
+            // Prefix (1010) + Random 10 digits
+            long randomNum = 1000000000L + (long) (random.nextDouble() * 9000000000L);
+            accountNumber = "1010" + randomNum;
+        } while (accountRepo.existsByAccountNumber(accountNumber)); // DB එකේ නැති එකක් එනකම් Loop වෙනවා
+
+        return accountNumber;
     }
 }

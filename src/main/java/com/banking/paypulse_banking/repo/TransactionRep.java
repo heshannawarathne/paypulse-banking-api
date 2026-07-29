@@ -32,7 +32,7 @@ public interface TransactionRep extends JpaRepository<Transaction, Long> {
     @Query("SELECT COALESCE(SUM(t.amount), 0) FROM Transaction t WHERE t.sourceAccount.accountNumber = :accNo AND t.status = 'SUCCESS'")
     BigDecimal calculateTotalOutcome(@Param("accNo") String accNo);
 
-    // Recent Transactions 5ක් ගන්න Query එක
+
     Page<Transaction> findBySourceAccount_AccountNumberOrDestinationAccount_AccountNumber(
             String sourceAccNo,
             String destAccNo,
