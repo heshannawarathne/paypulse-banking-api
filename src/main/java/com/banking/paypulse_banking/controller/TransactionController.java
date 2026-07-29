@@ -2,6 +2,7 @@ package com.banking.paypulse_banking.controller;
 
 import com.banking.paypulse_banking.dto.paginated.PaginatedResponseTransaction;
 import com.banking.paypulse_banking.dto.request.TransferRequestDto;
+import com.banking.paypulse_banking.dto.response.DashboardSummaryResponseDto;
 import com.banking.paypulse_banking.dto.response.TransferResponseDto;
 import com.banking.paypulse_banking.service.TransactionService;
 import com.banking.paypulse_banking.util.StandardResponse;
@@ -64,5 +65,16 @@ public class TransactionController {
                 new StandardResponse(200, "All transaction", response), HttpStatus.OK
         );
 
+    }
+
+
+    @GetMapping(path = "/dashboard", params = {"accountNumber"})
+    public ResponseEntity<StandardResponse> getTransactionsByAccountNumber(@RequestParam(value = "accountNumber") String accNo) {
+
+        DashboardSummaryResponseDto dsrd = transactionService.getDashboardSummary(accNo);
+
+        return new ResponseEntity<StandardResponse>(
+                new StandardResponse(200, "Dashboard Summary", dsrd), HttpStatus.OK
+        );
     }
 }

@@ -4,6 +4,7 @@ import com.banking.paypulse_banking.Exception.InsufficientBalanceException;
 import com.banking.paypulse_banking.Exception.NotFoundException;
 import com.banking.paypulse_banking.dto.paginated.PaginatedResponseTransaction;
 import com.banking.paypulse_banking.dto.request.TransferRequestDto;
+import com.banking.paypulse_banking.dto.response.DashboardSummaryResponseDto;
 import com.banking.paypulse_banking.dto.response.GetAllTransactionByUserResponseDto;
 import com.banking.paypulse_banking.dto.response.TransferResponseDto;
 import com.banking.paypulse_banking.entity.Account;
@@ -27,7 +28,9 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TransactionServiceImpl implements TransactionService {
@@ -156,6 +159,40 @@ public class TransactionServiceImpl implements TransactionService {
 
         } else {
             throw new NotFoundException("No transactions found for the given date range");
+        }
+    }
+
+    //dashboard summery report
+    @Override
+    public DashboardSummaryResponseDto getDashboardSummary(String accNo) {
+
+        Account account = accountRepo.findByAccountNumber(accNo);
+        if (account == null) {
+            throw new NotFoundException("Account not found for number: " + accNo);
+        } else {
+
+            BigDecimal totalIncome = transactionRepo.calculateTotalIncome(accNo);
+            BigDecimal totalOutcome = transactionRepo.calculateTotalOutcome(accNo);
+
+            totalIncome = (totalIncome != null) ? totalIncome : BigDecimal.ZERO;
+            totalOutcome = (totalOutcome != null) ? totalOutcome : BigDecimal.ZERO;
+
+            Page<Transaction> recentPage = transactionRepo
+                    .findBySourceAccount_AccountNumberOrDestinationAccount_AccountNumber(accNo, accNo,
+                            PageRequest.of(0, 5, Sort.by("timestamp").descending()));
+
+            List<GetAllTransactionByUserResponseDto> recentTransactionsList = new ArrayList<>();
+            if (recentPage.hasContent()) {
+                recentTransactionsList = transactionMapper.pageToGetAllTransactionByUserDtoList(recentPage.getContent());
+            }
+
+            return new DashboardSummaryResponseDto(
+                    account.getAccountNumber(),
+                    account.getBalance(),
+                    totalIncome,
+                    totalOutcome,
+                    recentTransactionsList
+            );
         }
     }
 
